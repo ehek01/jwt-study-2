@@ -1,4 +1,4 @@
-package io.getarrays.jwtstudy2.api;
+package io.getarrays.jwtstudy2.controller;
 
 import io.getarrays.jwtstudy2.entity.Role;
 import io.getarrays.jwtstudy2.entity.User;
