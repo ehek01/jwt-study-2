@@ -1,6 +1,7 @@
 package io.getarrays.jwtstudy2.config;
 
 import io.getarrays.jwtstudy2.filter.CustomAuthenticationFilter;
+import io.getarrays.jwtstudy2.filter.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.*;
@@ -60,7 +62,7 @@ public class SecurityConfig {
                 // 권한 설정
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/login/**").permitAll()
+                .antMatchers("/api/login/**", "/api/token/refresh/**").permitAll()
                 .antMatchers(GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
                 .antMatchers(POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN") // 사용자를 저장하기 위해서는 관리자 권한이 필요.
                 .anyRequest().authenticated() // 모든경로는 인증을 받아야 한다.
@@ -68,7 +70,8 @@ public class SecurityConfig {
                 // 필터랑 password encoder 등 이것저것 추가?
                 .and()
                 .authenticationManager(authenticationManager)
-                .addFilter(customAuthenticationFilter);
+                .addFilter(customAuthenticationFilter) // 인증필터
+                .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class); // 권한필터 // 모든 요청을 받으려면 다른 필터들 보다 먼저 처리되어야 한다.
 
         return http.build();
     }
